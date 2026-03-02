@@ -334,3 +334,6 @@ geckodriver.exe
 # .mvn/
 # mvnw
 # mvnw.cmd
+google-chrome-stable_current_amd64.deb
+chromedriver-linux64/
+chromedriver.zip
