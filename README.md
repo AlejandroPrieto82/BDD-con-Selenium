@@ -9,7 +9,10 @@ Laboratorio de pruebas automatizadas usando **Behavior Driven Development (BDD)*
 
 ## 📋 Descripción
 
-Este proyecto implementa un flujo BDD completo que automatiza una búsqueda en Google usando Chrome en modo headless. El escenario verifica que al buscar "GitHub", los resultados contengan dicho término.
+Este proyecto implementa un flujo BDD completo que automatiza pruebas web usando Chrome en modo headless. Incluye dos features:
+
+1. **Google Search** — Verifica que al buscar "GitHub" en Google, los resultados contengan dicho término.
+2. **Login en The Internet** *(Challenge)* — Verifica login exitoso y fallido en `https://the-internet.herokuapp.com/login` usando el patrón **Page Object Model con PageFactory**.
 
 ---
 
@@ -32,7 +35,7 @@ Este proyecto implementa un flujo BDD completo que automatiza una búsqueda en G
 ```
 BDD-con-Selenium/
 ├── .devcontainer/
-│   └── devcontainer.json           # Configuración de GitHub Codespaces
+│   └── devcontainer.json
 ├── src/
 │   ├── main/
 │   │   └── java/com/eci/myproject/
@@ -40,19 +43,23 @@ BDD-con-Selenium/
 │   └── test/
 │       └── java/com/eci/myproject/
 │           ├── features/
-│           │   └── google_search.feature   # Escenario BDD en Gherkin
+│           │   ├── google_search.feature   # Feature 1: Google Search
+│           │   └── login.feature           # Feature 2: Login (Challenge)
 │           ├── steps/
-│           │   └── SearchSteps.java        # Implementación de los pasos
+│           │   ├── SearchSteps.java        # Steps de Google Search
+│           │   ├── LoginSteps.java         # Steps de Login
+│           │   └── LoginPage.java          # Page Object con PageFactory
 │           └── runners/
-│               └── TestRunner.java         # Configuración del runner
-├── pom.xml                                 # Dependencias Maven
+│               └── TestRunner.java
+├── pom.xml
 └── README.md
 ```
 
 ---
 
-## 🥒 Escenario BDD
+## 🥒 Escenarios BDD
 
+### Feature 1 — Google Search
 ```gherkin
 Feature: Google Search
 
@@ -62,33 +69,67 @@ Feature: Google Search
     Then I should see "GitHub" in the results
 ```
 
+### Feature 2 — Login en The Internet (Challenge)
+```gherkin
+Feature: Login on The Internet
+
+  Scenario: Successful login with valid credentials
+    Given I am on the login page
+    When I enter username "tomsmith" and password "SuperSecretPassword!"
+    Then I should see a success message
+
+  Scenario: Failed login with invalid credentials
+    Given I am on the login page
+    When I enter username "wronguser" and password "wrongpass"
+    Then I should see an error message
+```
+
+---
+
+## 🏗️ Challenge — PageFactory
+
+El challenge consistió en implementar el patrón **Page Object Model con PageFactory** de Selenium.
+
+En lugar de buscar elementos directamente en los steps:
+```java
+// Sin PageFactory ❌
+driver.findElement(By.id("username")).sendKeys("tomsmith");
+```
+
+Se declaran en una clase de página con anotaciones `@FindBy`:
+```java
+// Con PageFactory ✅
+@FindBy(id = "username")
+private WebElement usernameField;
+```
+
+`PageFactory.initElements(driver, this)` inicializa todos los elementos automáticamente, haciendo el código más limpio, reutilizable y mantenible.
+
 ---
 
 ## ⚙️ Configuración del entorno (GitHub Codespaces)
 
-El proyecto incluye un `devcontainer.json` que configura automáticamente el entorno con Java 17, Maven y Node.js al abrir el Codespace.
-
-Para levantar el entorno:
-
 1. Ve al repositorio en GitHub
-2. Haz click en **Code → Codespaces → Create codespace on main**
-3. Espera a que el entorno se configure automáticamente
+2. Click en **Code → Codespaces → Create codespace on main**
+3. Espera a que el entorno se configure
 
-### Instalación de Chrome y ChromeDriver (dentro del Codespace)
+### Instalación de Chrome y ChromeDriver
 
 ```bash
 # Instalar Google Chrome
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
 
-# Instalar ChromeDriver compatible con la versión de Chrome instalada
+# Obtener versión exacta de Chrome
 CHROME_FULL=$(google-chrome --version | grep -oP '[\d.]+')
+
+# Descargar ChromeDriver compatible
 wget "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_FULL}/linux64/chromedriver-linux64.zip" -O chromedriver.zip
 unzip chromedriver.zip
 sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
 sudo chmod +x /usr/local/bin/chromedriver
 
-# Verificar instalación
+# Verificar
 google-chrome --version
 chromedriver --version
 ```
@@ -104,7 +145,7 @@ mvn test
 ### Resultado esperado
 
 ```
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -112,15 +153,13 @@ BUILD SUCCESS
 
 ## 📊 Reportes
 
-Después de ejecutar `mvn test`, los reportes se generan en:
-
 | Formato | Ruta |
 |---|---|
 | HTML | `target/HtmlReports/report.html` |
 | JSON | `target/JSonReports/report.json` |
 | JUnit XML | `target/JUnitReports/report.xml` |
 
-Para ver el reporte HTML en el Codespace: click derecho sobre `target/HtmlReports/report.html` → **Download** → abrir en el navegador.
+Para ver el reporte: click derecho sobre `target/HtmlReports/report.html` → **Download** → abrir en el navegador.
 
 ---
 
@@ -151,6 +190,6 @@ Para ver el reporte HTML en el Codespace: click derecho sobre `target/HtmlReport
 
 ## 📝 Notas
 
-- Chrome corre en modo **headless** (sin interfaz gráfica), lo que permite ejecutarlo en entornos sin pantalla como Codespaces.
-- El ChromeDriver debe coincidir exactamente con la versión de Google Chrome instalada.
-- Los archivos binarios de Chrome y ChromeDriver están excluidos del repositorio vía `.gitignore`.
+- Chrome corre en modo **headless** (sin interfaz gráfica) para funcionar en Codespaces.
+- El ChromeDriver debe coincidir exactamente con la versión de Chrome instalada.
+- Los binarios de Chrome y ChromeDriver están excluidos del repo vía `.gitignore`.
