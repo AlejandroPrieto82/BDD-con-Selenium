@@ -1,4 +1,4 @@
-package com.eci.myproject.steps;
+package com.eci.myproject.pages;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;

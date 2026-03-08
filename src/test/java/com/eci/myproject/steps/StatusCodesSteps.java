@@ -9,14 +9,14 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import java.util.concurrent.TimeUnit;
-import com.eci.myproject.pages.LoginPage;
+import com.eci.myproject.pages.StatusCodesPage;
 
-public class LoginSteps {
+public class StatusCodesSteps {
 
     private WebDriver driver;
-    private LoginPage loginPage;
+    private StatusCodesPage statusCodesPage;
 
-    @Before("@login")
+    @Before("@status_codes")
     public void setUp() {
         System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");
         ChromeOptions options = new ChromeOptions();
@@ -27,32 +27,26 @@ public class LoginSteps {
         options.addArguments("--remote-allow-origins=*");
         driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        loginPage = new LoginPage(driver);
+        statusCodesPage = new StatusCodesPage(driver);
     }
 
-    @Given("I am on the login page")
-    public void i_am_on_the_login_page() {
-        loginPage.navigate();
+    @Given("I am on the status codes page")
+    public void i_am_on_the_status_codes_page() {
+        statusCodesPage.navigate();
     }
 
-    @When("I enter username {string} and password {string}")
-    public void i_enter_username_and_password(String username, String password) {
-        loginPage.enterUsername(username);
-        loginPage.enterPassword(password);
-        loginPage.clickLogin();
+    @When("I click on status code {string}")
+    public void i_click_on_status_code(String code) {
+        statusCodesPage.clickStatusCode(code);
     }
 
-    @Then("I should see a success message")
-    public void i_should_see_a_success_message() {
-        assert loginPage.isLoginSuccessful() : "Expected success message not displayed";
+    @Then("I should see the status code {string} in the page")
+    public void i_should_see_status_code_in_page(String code) {
+        assert statusCodesPage.isStatusCodeDisplayed(code) :
+            "Expected status code " + code + " not found in page";
     }
 
-    @Then("I should see an error message")
-    public void i_should_see_an_error_message() {
-        assert loginPage.isLoginFailed() : "Expected error message not displayed";
-    }
-
-    @After("@login")
+    @After("@status_codes")
     public void tearDown() {
         if (driver != null) driver.quit();
     }

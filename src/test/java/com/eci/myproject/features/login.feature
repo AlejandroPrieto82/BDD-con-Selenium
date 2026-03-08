@@ -1,3 +1,4 @@
+@login
 Feature: Login on The Internet
 
   Scenario: Successful login with valid credentials
@@ -9,4 +10,3 @@ Feature: Login on The Internet
     Given I am on the login page
     When I enter username "wronguser" and password "wrongpass"
     Then I should see an error message
-    
